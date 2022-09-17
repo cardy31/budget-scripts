@@ -1,4 +1,6 @@
 # This script converts the default Tangerine CSV format into the format I want for my budget
+#
+# Example: python3 expense_converter.py /Users/cardy/Downloads/expenses.csv 9 Rob
 
 import csv
 import sys
@@ -30,6 +32,7 @@ class ExpenseFixer:
                     all_rows = []
                     first_row = ""
                     for i, row in enumerate(reader):
+                        # First row is a header, so handle it separately
                         if i == 0:
                             first_row = self.fix_first_row(row)
                             continue
@@ -51,9 +54,9 @@ class ExpenseFixer:
 
     @staticmethod
     def fix_first_row(row):
-        row[3] = "Category"
         row.pop(1)
         row.insert(2, "Person")
+        row[3] = "Category"
         return row
 
     def fix_data_row(self, row):
@@ -64,17 +67,17 @@ class ExpenseFixer:
         if getattr(row[0], "tm_mon") != self.valid_month:
             return None
 
-        # Clear the fourth row
-        row[3] = ""
-
-        # Change negative numbers to positive
-        row[4] = str(abs(float(row[4])))
-
-        # Delete the second row
+        # Delete the second column
         row.pop(1)
 
-        # Add the name of the person
+        # Add a new column with the name of the person
         row.insert(2, self.person)
+
+        # Clear the fourth column
+        row[3] = ""
+
+        # Change negative number to positive in fifth column
+        row[4] = f'${str(abs(float(row[4])))}'
 
         return row
 
